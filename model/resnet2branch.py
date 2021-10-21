@@ -137,9 +137,9 @@ class TFIResNet(nn.Module):
         self.maxpool = nn.MaxPool1d(kernel_size=3, stride=2, padding=1)
 
         self.layer3x3_1 = self._make_layer3(BasicBlock3x3, 64, layers[0], stride=2)
-        self.layer3x3_2 = self._make_layer3(BasicBlock3x3, 128, layers[1], stride=2)
+        self.layer3x3_2 = self._make_layer3(BasicBlock3x3, 128, layers[1], stride=1)
         self.layer3x3_3 = self._make_layer3(BasicBlock3x3, 256, layers[2], stride=2)
-        self.layer3x3_4 = self._make_layer3(BasicBlock3x3, 512, layers[3], stride=2)
+        self.layer3x3_4 = self._make_layer3(BasicBlock3x3, 512, layers[3], stride=1)
 
         # maxplooing kernel size: 16, 11, 6
         # self.maxpool3 = nn.AvgPool1d(kernel_size=16, stride=1, padding=0)
@@ -147,9 +147,9 @@ class TFIResNet(nn.Module):
 
 
         self.layer5x5_1 = self._make_layer5(BasicBlock5x5, 64, layers[0], stride=2)
-        self.layer5x5_2 = self._make_layer5(BasicBlock5x5, 128, layers[1], stride=2)
+        self.layer5x5_2 = self._make_layer5(BasicBlock5x5, 128, layers[1], stride=1)
         self.layer5x5_3 = self._make_layer5(BasicBlock5x5, 256, layers[2], stride=2)
-        self.layer5x5_4 = self._make_layer5(BasicBlock5x5, 512, layers[3], stride=2)
+        self.layer5x5_4 = self._make_layer5(BasicBlock5x5, 512, layers[3], stride=1)
         # self.maxpool5 = nn.AvgPool1d(kernel_size=11, stride=1, padding=0)
         self.maxpool5 = nn.AdaptiveAvgPool1d(1)
 
@@ -231,19 +231,27 @@ class TFIResNet(nn.Module):
         x0 = self.bn1(x0)
         x0 = self.relu(x0)
         x0 = self.maxpool(x0)
-
+        print(x0.shape)
         x = self.layer3x3_1(x0)
+        print(x.shape)
         x = self.layer3x3_2(x)
+        print(x.shape)
         x = self.layer3x3_3(x)
         print(x.shape)
-        x = self.layer3x3_4(x)
-        x = self.maxpool3(x)
+        # x = self.layer3x3_4(x)
         print(x.shape)
 
+        x = self.maxpool3(x)
+        print(x.shape)
+        print("------------------")
         y = self.layer5x5_1(x0)
+        print(y.shape)
         y = self.layer5x5_2(y)
+        print(y.shape)
         y = self.layer5x5_3(y)
-        y = self.layer5x5_4(y)
+        # y = self.layer5x5_4(y)
+        print(y.shape)
+
         y = self.maxpool5(y)
 
         # z = self.layer7x7_1(x0)
@@ -251,7 +259,6 @@ class TFIResNet(nn.Module):
         # z = self.layer7x7_3(z)
         # z = self.layer7x7_4(z)
         # z = self.maxpool7(z)
-        print(x.shape)
         print(y.shape)
         # print(z.shape)
         out = torch.cat([x, y], dim=1)
@@ -277,7 +284,7 @@ if __name__ == '__main__':
     # )
     net = TFIResNet(3)
 
-    img = torch.randn(2,3, 896)
+    img = torch.randn(2,3, 912)
     # mask = torch.ones(1, 8, 8).bool()  # optional mask, designating which patch to attend to
 
     preds = net(img)  # (1, 1000)
